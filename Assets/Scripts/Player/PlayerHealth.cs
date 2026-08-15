@@ -1,10 +1,13 @@
+using System;
 using UnityEngine;
 
 namespace Game.Player
 {
     /// <summary>
-    /// Player health. Takes damage from enemy attacks and clamps at zero.
-    /// Player death / Game Over is a separate feature - for now health simply stays at 0.
+    /// Player health. Takes damage from enemy attacks and clamps at zero. When health reaches zero
+    /// it enters a dead state and raises the Died event exactly once. It deliberately does NOT
+    /// contain any Game Over logic - that is handled by a separate listener (PlayerDeathHandler),
+    /// keeping detection and response cleanly separated.
     /// </summary>
     public class PlayerHealth : MonoBehaviour
     {
@@ -18,17 +21,28 @@ namespace Game.Player
         public int MaxHealth => maxHealth;
         public int CurrentHealth => currentHealth;
 
+        /// <summary>Raised once, the moment the player dies. Listeners handle the run-ending.</summary>
+        public event Action Died;
+
+        /// <summary>True once the player has died. Used to ignore any further damage.</summary>
+        public bool IsDead => isDead;
+
+        private bool isDead;
+
         private void Awake()
         {
             currentHealth = maxHealth;
         }
 
         /// <summary>
-        /// Applies damage to the Player. Non-positive damage is ignored and health never goes below
-        /// zero. Player death is intentionally not handled yet - health just stays at 0.
+        /// Applies damage to the Player. Ignored once dead (prevents further damage and repeated
+        /// death events) and for non-positive damage. Health never goes below zero.
         /// </summary>
         public void TakeDamage(int damage)
         {
+            if (isDead)
+                return;
+
             if (damage <= 0)
                 return;
 
@@ -37,6 +51,20 @@ namespace Game.Player
                 currentHealth = 0;
 
             Debug.Log($"Player took {damage} damage. Remaining HP: {currentHealth}/{maxHealth}.", this);
+
+            if (currentHealth <= 0)
+                Die();
+        }
+
+        /// <summary>
+        /// Marks the player dead and announces it once. Health stays at 0; the actual run-ending
+        /// response (stopping the player, showing Game Over) is handled by listeners, not here.
+        /// </summary>
+        private void Die()
+        {
+            isDead = true;
+            Debug.Log("Player has died.", this);
+            Died?.Invoke();
         }
     }
 }
