@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 9081785460229126608}
   - component: {fileID: 3253159828511086399}
   - component: {fileID: 9121604441818909138}
+  - component: {fileID: -7546088451560604692}
+  - component: {fileID: -912411215543527940}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -128,3 +130,32 @@ MonoBehaviour:
   target: {fileID: 0}
   moveSpeed: 2.5
   rotationSpeed: 720
+--- !u!114 &-7546088451560604692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7645798196913933097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e5a3bf91a9ee8c4e808b255a40be09d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Enemies.EnemyHealth
+  maxHealth: 100
+  currentHealth: 0
+--- !u!114 &-912411215543527940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7645798196913933097}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90bd660928d7f5a4eb2fd8d84fe812da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Enemies.EnemyAttack
+  attackRange: 2
+  attackDamage: 10
+  attackCooldown: 1

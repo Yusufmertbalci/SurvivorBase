@@ -24,6 +24,10 @@ namespace Game.Enemies
         // Prevents normalizing a near-zero vector (NaN) and jittering on top of the target.
         private const float ArrivalThresholdSqr = 0.0001f;
 
+        // When false, the enemy holds position (still faces the target). Toggled by EnemyAttack
+        // so the enemy stops advancing once it is within attack range.
+        private bool _canMove = true;
+
         private void Start()
         {
             if (target == null)
@@ -43,6 +47,18 @@ namespace Game.Enemies
             target = newTarget;
         }
 
+        /// <summary>
+        /// The Transform this enemy is chasing. Exposed so sibling components (e.g. EnemyAttack)
+        /// can reuse the same target instead of maintaining a second Player reference.
+        /// </summary>
+        public Transform Target => target;
+
+        /// <summary>
+        /// Enables or disables chase movement. EnemyAttack turns this off while the target is in
+        /// attack range so the enemy stops advancing, and back on when the target leaves range.
+        /// </summary>
+        public void SetMovementEnabled(bool value) => _canMove = value;
+
         private void Update()
         {
             if (target == null)
@@ -58,7 +74,9 @@ namespace Game.Enemies
             Vector3 direction = toTarget.normalized;
 
             // Frame-rate independent movement on the X/Z plane only.
-            transform.position += direction * (moveSpeed * Time.deltaTime);
+            // Skipped while movement is disabled (in attack range) so the enemy stops advancing.
+            if (_canMove)
+                transform.position += direction * (moveSpeed * Time.deltaTime);
 
             // Smoothly rotate to face the movement direction. Direction has y = 0, so this is a
             // pure yaw (Y-axis) rotation and the enemy stays upright.

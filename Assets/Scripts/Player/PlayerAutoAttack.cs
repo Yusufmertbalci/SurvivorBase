@@ -7,9 +7,8 @@ namespace Game.Player
     /// Automatic player attack foundation for a survivor-style game. With no player input it finds
     /// the closest enemy in range, waits for the cooldown, and performs an attack, repeatedly.
     ///
-    /// This first version implements ONLY targeting and attack timing. Damage is not applied yet -
-    /// PerformAttack() currently just logs, and is the single place where EnemyHealth damage will be
-    /// plugged in next, without touching the targeting/cooldown logic above it.
+    /// Targeting and attack timing live here; the actual damage is applied in PerformAttack() by
+    /// calling TakeDamage() on the target's EnemyHealth. The damage/kill logging lives in EnemyHealth.
     /// </summary>
     public class PlayerAutoAttack : MonoBehaviour
     {
@@ -20,7 +19,7 @@ namespace Game.Player
         [Tooltip("Seconds between attacks.")]
         [SerializeField] private float attackCooldown = 1f;
 
-        [Tooltip("Damage per attack. Applied to enemy health in a later step.")]
+        [Tooltip("Damage dealt to the target's EnemyHealth on each attack.")]
         [SerializeField] private float damage = 10f;
 
         // Reused buffer for the non-allocating physics query (mobile-friendly: no per-query GC).
@@ -100,14 +99,13 @@ namespace Game.Player
         }
 
         /// <summary>
-        /// The attack event. For now it only logs.
-        /// NEXT STEP: apply `damage` to the target's EnemyHealth right here - the targeting and
-        /// cooldown logic above stays exactly as-is.
+        /// The attack event: applies damage to the target's EnemyHealth. The targeting and cooldown
+        /// logic above is unchanged. TryGetComponent allocates nothing and does no scene-wide search.
         /// </summary>
         private void PerformAttack(Transform enemy)
         {
-            // TODO (next step): enemy.GetComponent<EnemyHealth>().TakeDamage(damage);
-            Debug.Log($"Player attacked {enemy.name} for {damage} damage.");
+            if (enemy.TryGetComponent(out EnemyHealth health))
+                health.TakeDamage(damage);
         }
 
         // Development-only visualization of the attack range. Drawn when the Player is selected in
