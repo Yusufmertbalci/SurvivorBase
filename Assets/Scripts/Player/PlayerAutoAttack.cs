@@ -33,6 +33,16 @@ namespace Game.Player
         // Counts down to zero; an attack is allowed when it reaches zero.
         private float _cooldownTimer;
 
+        // Attack-speed multiplier from run upgrades. 1 = base; higher = faster (shorter effective
+        // cooldown). Resets to 1 on scene reload since this component is recreated for the new run.
+        private float _attackSpeedMultiplier = 1f;
+
+        /// <summary>Current attack damage (base + run upgrades). Read-only, for display/HUD use.</summary>
+        public float Damage => damage;
+
+        /// <summary>Current attack-speed multiplier (1 = base). Read-only, for display/HUD use.</summary>
+        public float AttackSpeedMultiplier => _attackSpeedMultiplier;
+
         private void Update()
         {
             // Frame-rate independent cooldown.
@@ -49,7 +59,7 @@ namespace Game.Player
             if (_cooldownTimer <= 0f)
             {
                 PerformAttack(_currentTarget);
-                _cooldownTimer = attackCooldown;
+                _cooldownTimer = attackCooldown / _attackSpeedMultiplier;
             }
         }
 
@@ -106,6 +116,29 @@ namespace Game.Player
         {
             if (enemy.TryGetComponent(out EnemyHealth health))
                 health.TakeDamage(damage);
+        }
+
+        /// <summary>Run upgrade: increases attack damage. Resets on scene reload for a new run.</summary>
+        public void AddDamage(float amount)
+        {
+            if (amount <= 0f)
+                return;
+
+            damage += amount;
+            Debug.Log($"[Upgrade] Damage +{amount}. New damage: {damage}.", this);
+        }
+
+        /// <summary>
+        /// Run upgrade: increases attack speed by a percentage (+15 = +15% faster), applied by
+        /// shortening the effective cooldown (attackCooldown / multiplier). Resets on scene reload.
+        /// </summary>
+        public void AddAttackSpeedPercent(float percent)
+        {
+            if (percent <= 0f)
+                return;
+
+            _attackSpeedMultiplier += percent / 100f;
+            Debug.Log($"[Upgrade] Attack speed +{percent}%. Multiplier now {_attackSpeedMultiplier:0.00}.", this);
         }
 
         // Development-only visualization of the attack range. Drawn when the Player is selected in

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Game.UI; // GameOverUI lives here
+using Game.Progression; // RunProgression
 
 namespace Game.Player
 {
@@ -49,10 +50,11 @@ namespace Game.Player
             if (_autoAttack != null)
                 _autoAttack.enabled = false;
 
-            // FUTURE: reset TEMPORARY run progression here (combat XP, current run level, run-only
-            // weapons / upgrades / buffs). Permanent Base progression (base level, buildings, workers,
-            // permanent upgrades and resources) must NOT be modified by the run ending - it lives in
-            // the Base system and is intentionally left untouched.
+            // Reset TEMPORARY run progression (Run XP / Run Level) so the next run starts fresh.
+            // Permanent progression (Permanent XP / Survivor Level) and future Base progression are
+            // intentionally NOT touched here - they survive death.
+            if (RunProgression.Instance != null)
+                RunProgression.Instance.ResetRun();
 
             // Show the Game Over screen.
             if (gameOverUI != null)

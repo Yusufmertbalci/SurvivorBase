@@ -35,6 +35,21 @@ namespace Game.Player
         }
 
         /// <summary>
+        /// Run upgrade: increases maximum health by the given amount and heals by the same amount.
+        /// Ignored once dead. This is a temporary run upgrade - it resets naturally when the scene
+        /// reloads for a new run, because the Player is recreated with its serialized maxHealth.
+        /// </summary>
+        public void IncreaseMaxHealth(int amount)
+        {
+            if (amount <= 0 || isDead)
+                return;
+
+            maxHealth += amount;
+            currentHealth += amount;
+            Debug.Log($"[Upgrade] Max HP +{amount}. New max: {maxHealth}, current: {currentHealth}.", this);
+        }
+
+        /// <summary>
         /// Applies damage to the Player. Ignored once dead (prevents further damage and repeated
         /// death events) and for non-positive damage. Health never goes below zero.
         /// </summary>

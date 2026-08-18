@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Game.UI
 {
@@ -38,12 +39,22 @@ namespace Game.UI
 
         /// <summary>
         /// Wire the "Return to Base" button's OnClick to this method in the Inspector.
-        /// Placeholder for now - the Base system does not exist yet. Later this will end the run and
-        /// load the Base, preserving permanent progression.
+        ///
+        /// Placeholder for testing: the real Base system does not exist yet, so this reloads the
+        /// current scene to start a fresh run. Reloading gives us the correct behavior for free -
+        /// the scene-scoped RunProgression and this Game Over UI are recreated fresh, while the
+        /// DontDestroyOnLoad PermanentProgression survives, so Permanent XP / Survivor Level are NOT
+        /// reset. Later this method will load the actual Base scene instead.
         /// </summary>
         public void OnReturnToBasePressed()
         {
-            Debug.Log("Return to Base pressed (placeholder - Base system not implemented yet).");
+            Debug.Log("Return to Base pressed (placeholder - reloading current scene for a fresh run).");
+
+            // Restore normal time in case the game was paused (e.g. a future Time.timeScale = 0 pause).
+            Time.timeScale = 1f;
+
+            Scene activeScene = SceneManager.GetActiveScene();
+            SceneManager.LoadScene(activeScene.buildIndex);
         }
     }
 }

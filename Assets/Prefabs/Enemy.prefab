@@ -142,8 +142,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e5a3bf91a9ee8c4e808b255a40be09d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Enemies.EnemyHealth
-  maxHealth: 100
+  maxHealth: 40
   currentHealth: 0
+  runXpReward: 25
+  permanentXpReward: 10
 --- !u!114 &-912411215543527940
 MonoBehaviour:
   m_ObjectHideFlags: 0
