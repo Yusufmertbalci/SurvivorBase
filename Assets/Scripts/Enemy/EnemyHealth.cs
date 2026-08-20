@@ -1,12 +1,12 @@
 using UnityEngine;
-using Game.Progression; // RunProgression / PermanentProgression
 
 namespace Game.Enemies
 {
     /// <summary>
     /// Simple enemy health: takes damage from the player's attacks and destroys the GameObject when
-    /// health reaches zero. On death it awards XP once to both progression systems (temporary Run XP
-    /// and permanent Survivor XP). No death effects, loot, or pooling yet.
+    /// health reaches zero. On death it drops ONE XP crystal at its position; that crystal awards XP
+    /// when the player collects it. EnemyHealth no longer awards XP directly - the crystal pickup is
+    /// the single reward source, which prevents any double reward.
     /// </summary>
     public class EnemyHealth : MonoBehaviour
     {
@@ -16,14 +16,11 @@ namespace Game.Enemies
         [Tooltip("Current health. Set to maxHealth on spawn; shown here so it can be watched at runtime.")]
         [SerializeField] private float currentHealth;
 
-        [Header("XP Rewards")]
-        [Tooltip("Run XP granted to the CURRENT run when this enemy dies (temporary progression).")]
-        [SerializeField] private int runXpReward = 25;
+        [Header("Loot")]
+        [Tooltip("XP crystal prefab dropped on death. Its own Inspector holds the XP reward values.")]
+        [SerializeField] private GameObject xpCrystalPrefab;
 
-        [Tooltip("Permanent XP granted when this enemy dies (survives death).")]
-        [SerializeField] private int permanentXpReward = 10;
-
-        // Guards against Die() running more than once so XP is awarded exactly once per enemy.
+        // Guards against Die() running more than once, so exactly ONE crystal drops per enemy.
         private bool isDead;
 
         private void Awake()
@@ -54,21 +51,26 @@ namespace Game.Enemies
         }
 
         /// <summary>
-        /// Handles death. Awards XP exactly once (the isDead guard prevents repeats), then removes
-        /// the enemy. Run XP feeds the temporary current-run progression; Permanent XP feeds the
-        /// persistent Survivor progression that survives death. The two are fully independent.
+        /// Handles death. Drops exactly one XP crystal (the isDead guard prevents repeats) and then
+        /// removes the enemy. XP is NOT awarded here - it is awarded only when the player collects the
+        /// crystal, so there is a single reward source and no double reward.
         /// </summary>
         private void Die()
         {
             isDead = true;
-
-            if (RunProgression.Instance != null)
-                RunProgression.Instance.AddXp(runXpReward);
-
-            if (PermanentProgression.Instance != null)
-                PermanentProgression.Instance.AddXp(permanentXpReward);
-
+            DropXpCrystal();
             Destroy(gameObject);
+        }
+
+        private void DropXpCrystal()
+        {
+            if (xpCrystalPrefab == null)
+            {
+                Debug.LogWarning($"{name}: No XP crystal prefab assigned on EnemyHealth; nothing dropped.", this);
+                return;
+            }
+
+            Instantiate(xpCrystalPrefab, transform.position, Quaternion.identity);
         }
     }
 }
