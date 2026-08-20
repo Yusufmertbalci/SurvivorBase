@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Game.Difficulty; // DifficultyManager
 
 namespace Game.Enemies
 {
     /// <summary>
-    /// Basic enemy spawner: periodically instantiates an enemy prefab at a random point on a ring
-    /// around the target (Player), between a minimum and maximum distance, up to a maximum count.
-    ///
-    /// No object pooling, waves, or difficulty scaling - this is the simple base for a future
-    /// spawning system. Does not reference the Main Camera.
+    /// Enemy spawner: decides WHEN and WHERE to spawn and instantiates enemy prefabs. When a
+    /// DifficultyManager is present it drives the current spawn interval, active-enemy cap, and the
+    /// HP/damage multipliers applied to each newly spawned enemy; otherwise it falls back to its own
+    /// serialized values. Spawn placement and enemy-count tracking are unchanged. No pooling/waves.
     /// </summary>
     public class EnemySpawner : MonoBehaviour
     {
@@ -19,8 +19,8 @@ namespace Game.Enemies
         [Tooltip("The enemy prefab to spawn. Must have an EnemyChase component.")]
         [SerializeField] private GameObject enemyPrefab;
 
-        [Header("Spawn Timing")]
-        [Tooltip("Seconds between spawn attempts.")]
+        [Header("Spawn Timing (fallback if no DifficultyManager)")]
+        [Tooltip("Seconds between spawn attempts. Used only when no DifficultyManager is in the scene.")]
         [SerializeField] private float spawnInterval = 2f;
 
         [Header("Spawn Placement (around the target, on the X/Z plane)")]
@@ -30,8 +30,8 @@ namespace Game.Enemies
         [Tooltip("Enemies never spawn farther than this from the target.")]
         [SerializeField] private float maxSpawnDistance = 12f;
 
-        [Header("Limits")]
-        [Tooltip("Maximum number of enemies allowed alive at once.")]
+        [Header("Limits (fallback if no DifficultyManager)")]
+        [Tooltip("Max enemies alive at once. Used only when no DifficultyManager is in the scene.")]
         [SerializeField] private int maxActiveEnemies = 30;
 
         // Tracks spawned enemies so the active count stays accurate even if some are destroyed later.
@@ -41,14 +41,23 @@ namespace Game.Enemies
 
         private void Update()
         {
-            // Frame-rate independent interval timing.
+            // Frame-rate independent timing. Time.deltaTime is 0 during the upgrade pause, so
+            // spawning naturally pauses too.
             _timer += Time.deltaTime;
-            if (_timer < spawnInterval)
+            if (_timer < CurrentSpawnInterval)
                 return;
 
             _timer = 0f;
             TrySpawnEnemy();
         }
+
+        // Current spawn interval from the DifficultyManager, or the serialized fallback if absent.
+        private float CurrentSpawnInterval =>
+            DifficultyManager.Instance != null ? DifficultyManager.Instance.CurrentSpawnInterval : spawnInterval;
+
+        // Current active-enemy cap from the DifficultyManager, or the serialized fallback if absent.
+        private int CurrentMaxActiveEnemies =>
+            DifficultyManager.Instance != null ? DifficultyManager.Instance.CurrentMaxActiveEnemies : maxActiveEnemies;
 
         private void TrySpawnEnemy()
         {
@@ -58,14 +67,33 @@ namespace Game.Enemies
             // Drop destroyed enemies (null in Unity) so the active count is accurate.
             _activeEnemies.RemoveAll(enemy => enemy == null);
 
-            if (_activeEnemies.Count >= maxActiveEnemies)
+            if (_activeEnemies.Count >= CurrentMaxActiveEnemies)
                 return;
 
             Vector3 spawnPosition = GetRandomSpawnPosition();
             GameObject enemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
             AssignTarget(enemy);
+            ApplyDifficulty(enemy);
             _activeEnemies.Add(enemy);
+        }
+
+        // Applies the current difficulty HP/damage multipliers ONCE, at spawn, through the enemy's own
+        // components (never touching their private fields directly). No per-frame scaling, so nothing
+        // compounds. Does nothing if there is no DifficultyManager.
+        private void ApplyDifficulty(GameObject enemy)
+        {
+            if (DifficultyManager.Instance == null)
+                return;
+
+            float hpMultiplier = DifficultyManager.Instance.CurrentHpMultiplier;
+            float damageMultiplier = DifficultyManager.Instance.CurrentDamageMultiplier;
+
+            if (enemy.TryGetComponent(out EnemyHealth health))
+                health.ApplyDifficultyMultiplier(hpMultiplier);
+
+            if (enemy.TryGetComponent(out EnemyAttack attack))
+                attack.ApplyDifficultyMultiplier(damageMultiplier);
         }
 
         private Vector3 GetRandomSpawnPosition()

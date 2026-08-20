@@ -28,6 +28,9 @@ namespace Game.Enemies
         private PlayerHealth _playerHealth;
         private float _cooldownTimer;
 
+        // Guards against applying the difficulty multiplier more than once (no exponential stacking).
+        private bool _difficultyApplied;
+
         private void Awake()
         {
             _chase = GetComponent<EnemyChase>();
@@ -68,6 +71,19 @@ namespace Game.Enemies
 
             if (_playerHealth != null)
                 _playerHealth.TakeDamage(attackDamage);
+        }
+
+        /// <summary>
+        /// Applies a difficulty damage multiplier ONCE at spawn: scales this instance's attack damage
+        /// (the prefab's base value is untouched). Guarded so it never stacks.
+        /// </summary>
+        public void ApplyDifficultyMultiplier(float multiplier)
+        {
+            if (_difficultyApplied || multiplier <= 0f)
+                return;
+
+            _difficultyApplied = true;
+            attackDamage = Mathf.Max(1, Mathf.RoundToInt(attackDamage * multiplier));
         }
 
         // Development-only visualization of the attack range, drawn when the enemy is selected.

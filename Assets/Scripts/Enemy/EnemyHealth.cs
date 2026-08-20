@@ -23,8 +23,25 @@ namespace Game.Enemies
         // Guards against Die() running more than once, so exactly ONE crystal drops per enemy.
         private bool isDead;
 
+        // Guards against applying the difficulty multiplier more than once (no exponential stacking).
+        private bool _difficultyApplied;
+
         private void Awake()
         {
+            currentHealth = maxHealth;
+        }
+
+        /// <summary>
+        /// Applies a difficulty HP multiplier ONCE at spawn: scales this instance's max health (the
+        /// prefab's base value is untouched) and refills to the new max. Guarded so it never stacks.
+        /// </summary>
+        public void ApplyDifficultyMultiplier(float multiplier)
+        {
+            if (_difficultyApplied || multiplier <= 0f)
+                return;
+
+            _difficultyApplied = true;
+            maxHealth *= multiplier;
             currentHealth = maxHealth;
         }
 
