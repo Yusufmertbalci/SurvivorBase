@@ -16,6 +16,9 @@ namespace Game.UI
         [Tooltip("Root object of the Game Over panel. Hidden on start, shown on death.")]
         [SerializeField] private GameObject panel;
 
+        [Tooltip("Name of the Base scene to load on Return to Base. Must be in Build Settings.")]
+        [SerializeField] private string baseSceneName = "BaseScene";
+
         private void Awake()
         {
             // Ensure the panel starts hidden regardless of how it was left in the scene.
@@ -38,23 +41,18 @@ namespace Game.UI
         }
 
         /// <summary>
-        /// Wire the "Return to Base" button's OnClick to this method in the Inspector.
+        /// Wire the "Return to Base" button's OnClick to this method in the Inspector (name unchanged).
         ///
-        /// Placeholder for testing: the real Base system does not exist yet, so this reloads the
-        /// current scene to start a fresh run. Reloading gives us the correct behavior for free -
-        /// the scene-scoped RunProgression and this Game Over UI are recreated fresh, while the
-        /// DontDestroyOnLoad PermanentProgression survives, so Permanent XP / Survivor Level are NOT
-        /// reset. Later this method will load the actual Base scene instead.
+        /// Loads the Base scene. The scene-scoped RunProgression, DifficultyManager, Player, enemies,
+        /// and XP crystals are all destroyed with GameScene, so the next run starts fresh, while the
+        /// DontDestroyOnLoad PermanentProgression survives - Permanent XP / Survivor Level are kept.
         /// </summary>
         public void OnReturnToBasePressed()
         {
-            Debug.Log("Return to Base pressed (placeholder - reloading current scene for a fresh run).");
-
-            // Restore normal time in case the game was paused (e.g. a future Time.timeScale = 0 pause).
+            // Restore normal time in case the game was paused (e.g. by the upgrade screen).
             Time.timeScale = 1f;
 
-            Scene activeScene = SceneManager.GetActiveScene();
-            SceneManager.LoadScene(activeScene.buildIndex);
+            SceneManager.LoadScene(baseSceneName);
         }
     }
 }
