@@ -23,12 +23,16 @@ namespace Game.Base
         [Tooltip("Permanent XP progress label, e.g. '420 / 500 XP'.")]
         [SerializeField] private TextMeshProUGUI permanentXpText;
 
+        [Tooltip("Base Level label, e.g. 'BASE LEVEL 2'. Separate from the Survivor Level above.")]
+        [SerializeField] private TextMeshProUGUI baseLevelText;
+
         [Header("Scene Flow")]
         [Tooltip("Name of the gameplay scene to load on Start Run. Must be in Build Settings.")]
         [SerializeField] private string gameSceneName = "GameScene";
 
         private int _lastPermanentXp = int.MinValue;
         private int _lastSurvivorLevel = int.MinValue;
+        private int _lastBaseLevel = int.MinValue;
 
         private void Start()
         {
@@ -36,9 +40,21 @@ namespace Game.Base
                 Debug.LogWarning(
                     $"{nameof(BaseHUD)}: No PermanentProgression found. Add a PermanentProgression object " +
                     "to BaseScene so permanent values persist and display.", this);
+
+            if (BaseProgression.Instance == null)
+                Debug.LogWarning(
+                    $"{nameof(BaseHUD)}: No BaseProgression found. Add a BaseProgression object to " +
+                    "BaseScene so the Base Level persists and displays.", this);
         }
 
         private void Update()
+        {
+            RefreshPermanent();
+            RefreshBaseLevel();
+        }
+
+        // Permanent progression (Survivor Level + Permanent XP), read from PermanentProgression.
+        private void RefreshPermanent()
         {
             PermanentProgression permanent = PermanentProgression.Instance;
             if (permanent == null)
@@ -47,7 +63,6 @@ namespace Game.Base
             int permanentXp = permanent.PermanentXp;
             int survivorLevel = permanent.SurvivorLevel;
 
-            // Only refresh the UI when a value actually changes (base is static, so this is rare).
             if (permanentXp == _lastPermanentXp && survivorLevel == _lastSurvivorLevel)
                 return;
 
@@ -62,6 +77,23 @@ namespace Game.Base
             int xpSpan = permanent.NextLevelXp - permanent.CurrentLevelXp;
             if (permanentXpText != null)
                 permanentXpText.text = xpSpan > 0 ? $"{xpIntoLevel} / {xpSpan} XP" : "MAX";
+        }
+
+        // Base Level, read from BaseProgression (a separate permanent system).
+        private void RefreshBaseLevel()
+        {
+            BaseProgression baseProgression = BaseProgression.Instance;
+            if (baseProgression == null)
+                return;
+
+            int baseLevel = baseProgression.CurrentBaseLevel;
+            if (baseLevel == _lastBaseLevel)
+                return;
+
+            _lastBaseLevel = baseLevel;
+
+            if (baseLevelText != null)
+                baseLevelText.text = $"BASE LEVEL {baseLevel}";
         }
 
         /// <summary>

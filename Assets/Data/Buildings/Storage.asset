@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53e04a89e2b8084da4a1a6aba70fdfb, type: 3}
+  m_Name: Storage
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Base.BuildingData
+  buildingId: storage
+  displayName: Storage
+  description: 
+  requiredBaseLevel: 2
+  startingBuildingLevel: 0
+  maxBuildingLevel: 3
+  buildingPrefab: {fileID: 1148068517260929530, guid: 3ad700acf11de7b4bb76d8510f186e9e, type: 3}
+  constructionCost:
+  - type: 0
+    amount: 150
+  - type: 1
+    amount: 75

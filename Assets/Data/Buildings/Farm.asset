@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53e04a89e2b8084da4a1a6aba70fdfb, type: 3}
+  m_Name: Farm
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Base.BuildingData
+  buildingId: farm
+  displayName: Farm
+  description: 
+  requiredBaseLevel: 3
+  startingBuildingLevel: 0
+  maxBuildingLevel: 3
+  buildingPrefab: {fileID: 4549041163513472801, guid: 85ab4d8ee1dab724b941226a9106467c, type: 3}
+  constructionCost:
+  - type: 0
+    amount: 120
+  - type: 1
+    amount: 40
