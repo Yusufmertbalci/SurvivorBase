@@ -101,19 +101,41 @@ namespace Game.Base
         }
 
         /// <summary>
-        /// DEV / TEST ONLY. Hook the "DEV: LEVEL UP BASE" button's OnClick here. It calls the real
-        /// BaseProgression.TryLevelUp(), so it only levels up when the Permanent XP requirement is
-        /// actually met - it does NOT bypass requirements. The list refreshes automatically next
-        /// frame via the Base Level change check. Remove this method and the button for release.
+        /// DEV / TEST ONLY. Hook the "DEV: LEVEL UP BASE" button's OnClick here. It now drives the
+        /// Base Core upgrade via BaseCoreManager.TryUpgrade(), so it only upgrades when the Permanent
+        /// XP requirement AND resources are satisfied; otherwise it logs why. There is no separate
+        /// Base Level path. Remove this method and the button for release. (For pure UI/visual testing
+        /// that ignores requirements, use BaseCoreManager's editor-only "DEV: Force Upgrade" context menu.)
         /// </summary>
         public void OnDevLevelUpPressed()
         {
-            if (BaseProgression.Instance == null)
+            BaseCoreManager mgr = BaseCoreManager.Instance;
+            if (mgr == null)
+            {
+                Debug.LogWarning("[DEV] No BaseCoreManager in the scene.");
                 return;
+            }
 
-            bool leveledUp = BaseProgression.Instance.TryLevelUp();
-            if (!leveledUp)
-                Debug.Log("[Base] DEV level-up ignored: Permanent XP requirement not met, or already at max Base Level.");
+            if (!mgr.HasNextLevel)
+            {
+                Debug.Log("[DEV] Base Core is already at max level.");
+                return;
+            }
+
+            if (!mgr.IsPermanentXpRequirementMet())
+            {
+                int required = mgr.NextLevelData != null ? mgr.NextLevelData.RequiredPermanentXP : 0;
+                Debug.Log($"[DEV] Base Core upgrade unavailable: Permanent XP requirement not met (need {required}).");
+                return;
+            }
+
+            if (!mgr.CanAffordNextUpgrade())
+            {
+                Debug.Log("[DEV] Base Core upgrade unavailable: insufficient resources.");
+                return;
+            }
+
+            mgr.TryUpgrade();
         }
     }
 }
