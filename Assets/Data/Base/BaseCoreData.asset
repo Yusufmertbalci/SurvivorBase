@@ -12,4 +12,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86ab641a04ba8ed4c9ad7e269a0d955a, type: 3}
   m_Name: BaseCoreData
   m_EditorClassIdentifier: Assembly-CSharp::Game.Base.BaseCoreData
-  levels: []
+  levels:
+  - requiredPermanentXP: 0
+    upgradeCost: []
+    visualPrefab: {fileID: 7818038435487541230, guid: 379484a9e1cfa0c4fa81cee6fb281421, type: 3}
+  - requiredPermanentXP: 100
+    upgradeCost:
+    - type: 0
+      amount: 500
+    - type: 1
+      amount: 300
+    visualPrefab: {fileID: 4327523655669394811, guid: 316e2e1618531cf469fbb25ec34b3f33, type: 3}
+  - requiredPermanentXP: 250
+    upgradeCost:
+    - type: 0
+      amount: 1000
+    - type: 1
+      amount: 600
+    visualPrefab: {fileID: 100011666071777046, guid: d9f0d333d367c144cbb3bedff3bbd3ac, type: 3}
+  - requiredPermanentXP: 600
+    upgradeCost:
+    - type: 0
+      amount: 2000
+    - type: 1
+      amount: 1200
+    visualPrefab: {fileID: 7743569404236322187, guid: d739a46b6b404a14cbee46b813af5bed, type: 3}
+  - requiredPermanentXP: 1200
+    upgradeCost:
+    - type: 0
+      amount: 4000
+    - type: 1
+      amount: 2500
+    visualPrefab: {fileID: 7650531837869417385, guid: 5bfa0d35a9c06384abc28d1519d135b0, type: 3}
