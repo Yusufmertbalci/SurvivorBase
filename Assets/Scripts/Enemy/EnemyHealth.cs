@@ -1,3 +1,4 @@
+using Game.Loot; // ResourceLoot
 using UnityEngine;
 
 namespace Game.Enemies
@@ -19,6 +20,9 @@ namespace Game.Enemies
         [Header("Loot")]
         [Tooltip("XP crystal prefab dropped on death. Its own Inspector holds the XP reward values.")]
         [SerializeField] private GameObject xpCrystalPrefab;
+
+        [Tooltip("Optional BONUS run-resource loot config. Leave empty for enemies that drop no resources.")]
+        [SerializeField] private EnemyLootData lootData;
 
         // Guards against Die() running more than once, so exactly ONE crystal drops per enemy.
         private bool isDead;
@@ -76,6 +80,7 @@ namespace Game.Enemies
         {
             isDead = true;
             DropXpCrystal();
+            DropResourceLoot();
             Destroy(gameObject);
         }
 
@@ -88,6 +93,31 @@ namespace Game.Enemies
             }
 
             Instantiate(xpCrystalPrefab, transform.position, Quaternion.identity);
+        }
+
+        /// <summary>
+        /// Optional BONUS run-resource loot, independent of the XP crystal. Rolls the enemy's loot
+        /// config and, on success, spawns ONE ResourceLoot pickup with a random amount. Collecting it
+        /// adds to the RUN inventory (never the base pool). The isDead guard means this runs once, so
+        /// loot never drops twice. Enemies with no lootData simply drop nothing here.
+        /// </summary>
+        private void DropResourceLoot()
+        {
+            if (lootData == null || !lootData.RollShouldDrop())
+                return;
+
+            int amount = lootData.RollAmount();
+            if (amount <= 0)
+                return;
+
+            // Small horizontal offset so the loot doesn't perfectly overlap the XP crystal.
+            Vector3 offset = new Vector3(Random.Range(-0.5f, 0.5f), 0f, Random.Range(-0.5f, 0.5f));
+            GameObject go = Instantiate(lootData.LootPrefab, transform.position + offset, Quaternion.identity);
+
+            if (go.TryGetComponent(out ResourceLoot loot))
+                loot.Initialize(lootData.Type, amount);
+            else
+                Debug.LogWarning($"{name}: Loot prefab has no ResourceLoot component; loot won't be collectable.", go);
         }
     }
 }

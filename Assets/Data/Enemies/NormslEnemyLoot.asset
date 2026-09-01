@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c22260a59e1d6304995ef47bf05e9e2c, type: 3}
+  m_Name: NormslEnemyLoot
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Enemies.EnemyLootData
+  canDropLoot: 1
+  dropChance: 1
+  resourceType: 0
+  minAmount: 5
+  maxAmount: 15
+  lootPrefab: {fileID: 3694637158368692098, guid: 2fdb1c84b202dc848a6665822e2e38c3, type: 3}
