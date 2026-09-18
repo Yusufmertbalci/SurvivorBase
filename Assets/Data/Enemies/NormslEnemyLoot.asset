@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NormslEnemyLoot
   m_EditorClassIdentifier: Assembly-CSharp::Game.Enemies.EnemyLootData
   canDropLoot: 1
-  dropChance: 1
+  dropChance: 0.3
   resourceType: 0
   minAmount: 5
   maxAmount: 15
