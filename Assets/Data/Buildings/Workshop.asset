@@ -24,3 +24,4 @@ MonoBehaviour:
     amount: 200
   - type: 1
     amount: 100
+  requiresHighestRunLevelUnlock: 1

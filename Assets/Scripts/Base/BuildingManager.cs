@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Game.Progression; // MilestoneManager (Highest Run Level unlocks)
 
 namespace Game.Base
 {
@@ -60,8 +61,26 @@ namespace Game.Base
 
         private void OnDestroy()
         {
+            // Persistent MilestoneManager may outlive/outlast us; unsubscribe to avoid a dangling handler.
+            if (MilestoneManager.Instance != null)
+                MilestoneManager.Instance.MilestonesChanged -= HandleMilestonesChanged;
+
             if (Instance == this)
                 Instance = null;
+        }
+
+        private void Start()
+        {
+            // Subscribe here (not Awake) so MilestoneManager.Instance is already set. When a new Highest
+            // Run Level milestone unlocks a building, re-broadcast BuildingsChanged so existing building
+            // UI refreshes without a scene reload - reusing the existing event, no second refresh system.
+            if (MilestoneManager.Instance != null)
+                MilestoneManager.Instance.MilestonesChanged += HandleMilestonesChanged;
+        }
+
+        private void HandleMilestonesChanged()
+        {
+            BuildingsChanged?.Invoke();
         }
 
         private void BuildRuntimeState()
@@ -141,8 +160,23 @@ namespace Game.Base
             if (building == null)
                 return false;
 
+            // Existing Base Level requirement - unchanged.
             int baseLevel = BaseProgression.Instance != null ? BaseProgression.Instance.CurrentBaseLevel : 1;
-            return baseLevel >= building.RequiredBaseLevel;
+            if (baseLevel < building.RequiredBaseLevel)
+                return false;
+
+            // Additional, opt-in Highest Run Level gate. Only buildings that set the flag are affected,
+            // so existing buildings (flag false) behave exactly as before. The milestone level lives in
+            // BaseMilestoneData, not here - we just ask MilestoneManager whether this BuildingId is unlocked.
+            if (building.RequiresHighestRunLevelUnlock)
+            {
+                if (MilestoneManager.Instance == null)
+                    return false;
+                if (!MilestoneManager.Instance.IsBuildingUnlocked(building.BuildingId))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

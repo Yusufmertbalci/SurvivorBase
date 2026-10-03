@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca99d1af2fab7974280f4e9165fd9a5c, type: 3}
+  m_Name: Builder
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Npc.NpcData
+  npcId: builder
+  displayName: Builder
+  description: A specialist who improves construction and building-related operations.
+  compatibleBuildingIds:
+  - workshop
+  constructionSpeedMultiplier: 1
+  upgradeEfficiencyMultiplier: 1
+  repairSpeedMultiplier: 1
+  visualPrefab: {fileID: 0}

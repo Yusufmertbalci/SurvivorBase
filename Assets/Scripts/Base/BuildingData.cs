@@ -39,6 +39,12 @@ namespace Game.Base
         [Tooltip("Resources required to construct this building. Editable per building asset.")]
         [SerializeField] private ResourceCost[] constructionCost;
 
+        [Header("Unlock")]
+        [Tooltip("If true, this building ALSO requires its Highest Run Level milestone (matched by " +
+                 "BuildingId via MilestoneManager) in addition to its Base Level. False (default) = " +
+                 "Base Level only, i.e. unchanged behavior.")]
+        [SerializeField] private bool requiresHighestRunLevelUnlock = false;
+
         public string BuildingId => buildingId;
         public string DisplayName => displayName;
         public string Description => description;
@@ -47,5 +53,6 @@ namespace Game.Base
         public int MaxBuildingLevel => maxBuildingLevel;
         public GameObject BuildingPrefab => buildingPrefab;
         public IReadOnlyList<ResourceCost> ConstructionCost => constructionCost;
+        public bool RequiresHighestRunLevelUnlock => requiresHighestRunLevelUnlock;
     }
 }
